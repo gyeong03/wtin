@@ -64,6 +64,7 @@ export default function MyPage() {
           </h3>
           <button 
             onClick={() => {
+              setRedirectUrl('/mypage');
               alert('로그인 후 이용할 수 있는 영역입니다. 로그인 페이지로 안내합니다.');
               router.push('/auth');
             }}
