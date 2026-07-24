@@ -168,7 +168,7 @@ export default function MyPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base">{profileNickname}</span>
-                <span className="px-2 py-0.5 rounded bg-brand-primary/10 text-[9px] font-bold text-brand-primary">Lv.3 빈티지 콜렉터</span>
+                <span className="px-2 py-0.5 rounded bg-brand-primary/10 text-[9px] font-bold text-brand-primary">Lv.1 비기너</span>
               </div>
               <p className="text-xs text-brand-primary/65 font-medium mt-1 flex items-center gap-0.5">
                 <MapPin className="w-3.5 h-3.5" /> {profileRegion}
@@ -180,15 +180,15 @@ export default function MyPage() {
           <div className="grid grid-cols-3 py-3 border-b border-brand-primary/5 bg-brand-primary/[0.02] text-center flex-shrink-0">
             <div>
               <span className="block text-xs text-brand-primary/55 font-bold">내가 쓴 글</span>
-              <span className="text-sm font-extrabold text-brand-primary mt-0.5 block">12</span>
+              <span className="text-sm font-extrabold text-brand-primary mt-0.5 block">0</span>
             </div>
             <div className="border-x border-brand-primary/10">
               <span className="block text-xs text-brand-primary/55 font-bold">댓글 수</span>
-              <span className="text-sm font-extrabold text-brand-primary mt-0.5 block">28</span>
+              <span className="text-sm font-extrabold text-brand-primary mt-0.5 block">0</span>
             </div>
             <div>
               <span className="block text-xs text-brand-primary/55 font-bold">저장한 가게</span>
-              <span className="text-sm font-extrabold text-brand-primary mt-0.5 block">15</span>
+              <span className="text-sm font-extrabold text-brand-primary mt-0.5 block">0</span>
             </div>
           </div>
 
@@ -218,23 +218,10 @@ export default function MyPage() {
               </div>
             </div>
 
-            {/* Scrollable list of user posts */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 scrollbar-none">
-              {DUMMY_POSTS.slice(0, 2).map((post) => (
-                <div key={post.id} className="p-3 bg-brand-primary/5 rounded-xl border border-brand-primary/5 flex gap-3 cursor-pointer hover:bg-brand-primary/[0.08] transition-all">
-                  <div className="w-14 h-14 rounded-lg overflow-hidden bg-brand-primary/10 flex-shrink-0">
-                    <img src={post.thumbnailUrl} alt="post thumb" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <h5 className="font-bold text-xs truncate">{post.title}</h5>
-                    <p className="text-[10px] text-brand-primary/70 line-clamp-1">{post.snippet}</p>
-                    <div className="flex items-center gap-2 mt-1 text-[9px] text-brand-primary/50 font-bold">
-                      <span className="flex items-center gap-0.5"><Heart className="w-2.5 h-2.5" /> {post.likes}</span>
-                      <span className="flex items-center gap-0.5"><MessageCircle className="w-2.5 h-2.5" /> {post.comments}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Scrollable list of user posts (Empty initial state) */}
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-center scrollbar-none">
+              <BookOpen className="w-8 h-8 text-brand-primary/30 mb-2" />
+              <p className="text-xs text-brand-primary/50 font-bold">작성한 게시글이 없습니다.</p>
             </div>
           </div>
         </div>
