@@ -11,6 +11,7 @@ interface AuthContextType {
   profileNickname: string;
   profileRegion: string;
   saveProfile: (nick: string, reg: string) => void;
+  isInitialized: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [profileNickname, setProfileNickname] = useState<string>('');
   const [profileRegion, setProfileRegion] = useState<string>('부산진구');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Sync with localStorage so the state persists on reload
   useEffect(() => {
@@ -36,12 +38,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedRegion) {
         setProfileRegion(storedRegion);
       }
+      setIsInitialized(true);
     }
   }, []);
 
   const login = (url?: string) => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
+    // Read from localStorage to ensure immediate reflection
+    const storedNick = localStorage.getItem('profileNickname') || '';
+    setProfileNickname(storedNick);
+    const storedRegion = localStorage.getItem('profileRegion') || '부산진구';
+    setProfileRegion(storedRegion);
     if (url) {
       setRedirectUrl(url);
     }
@@ -58,9 +66,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoggedIn(false);
     setProfileNickname('');
     setProfileRegion('부산진구');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('profileNickname');
-    localStorage.removeItem('profileRegion');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('profileNickname');
+      localStorage.removeItem('profileRegion');
+    }
     setRedirectUrl(null);
   };
 
@@ -73,7 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setRedirectUrl,
       profileNickname,
       profileRegion,
-      saveProfile
+      saveProfile,
+      isInitialized
     }}>
       {children}
     </AuthContext.Provider>

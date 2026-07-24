@@ -138,11 +138,24 @@ export default function Home() {
             </div>
 
             <div className="px-4 space-y-4">
-              {DUMMY_POSTS.map((post) => (
-                <article 
-                  key={post.id} 
-                  className="p-4 bg-brand-primary/5 hover:bg-brand-primary/[0.08] active:scale-[0.99] rounded-2xl border border-brand-primary/5 flex gap-4 transition-all cursor-pointer"
-                >
+              {DUMMY_POSTS.map((post) => {
+                const handlePostClick = () => {
+                  const stored = localStorage.getItem('isLoggedIn') === 'true';
+                  if (!stored) {
+                    localStorage.setItem('redirectUrl', '/');
+                    alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
+                    window.location.href = '/auth';
+                  } else {
+                    alert('MVP 데모: 상세 게시글 읽기 기능이 활성화되었습니다.');
+                  }
+                };
+
+                return (
+                  <article 
+                    key={post.id} 
+                    onClick={handlePostClick}
+                    className="p-4 bg-brand-primary/5 hover:bg-brand-primary/[0.08] active:scale-[0.99] rounded-2xl border border-brand-primary/5 flex gap-4 transition-all cursor-pointer"
+                  >
                   {/* Left Column: Post Contents */}
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
@@ -185,7 +198,8 @@ export default function Home() {
                     />
                   </div>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </div>
         </main>

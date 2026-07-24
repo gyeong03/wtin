@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function MyPage() {
-  const { isLoggedIn, logout, profileNickname, profileRegion, saveProfile } = useAuth();
+  const { isLoggedIn, logout, profileNickname, profileRegion, saveProfile, setRedirectUrl, isInitialized } = useAuth();
   const router = useRouter();
   const [profileState, setProfileState] = useState<'welcome' | 'create' | 'view'>('welcome');
   
@@ -19,6 +19,8 @@ export default function MyPage() {
 
   // Sync profile display state with actual global auth and profile details
   useEffect(() => {
+    if (!isInitialized) return;
+
     if (isLoggedIn) {
       if (profileNickname) {
         setProfileState('view');
@@ -27,8 +29,11 @@ export default function MyPage() {
       }
     } else {
       setProfileState('welcome');
+      setRedirectUrl('/mypage');
+      alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
+      router.replace('/auth');
     }
-  }, [isLoggedIn, profileNickname]);
+  }, [isLoggedIn, profileNickname, isInitialized, router, setRedirectUrl]);
 
   const handleCreateProfile = () => {
     if (!nicknameInput.trim()) {
@@ -50,6 +55,15 @@ export default function MyPage() {
     setProfileState('welcome');
     router.push('/');
   };
+
+  // Prevent flash of welcome screen during initialization
+  if (!isInitialized) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-brand-bg text-brand-primary">
+        <div className="text-xs font-bold opacity-60">로딩 중...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col h-full w-full overflow-hidden bg-brand-bg text-brand-primary">
