@@ -17,7 +17,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative flex flex-col h-full w-full overflow-hidden bg-brand-bg text-brand-primary">
+    <div className="relative flex flex-col flex-1 h-full w-full overflow-hidden bg-brand-bg text-brand-primary">
       {/* Splash Screen */}
       {showSplash && (
         <div 
@@ -35,7 +35,7 @@ export default function Home() {
       )}
 
       {/* App Layout Structure */}
-      <div className="flex flex-col h-full w-full">
+      <div className="flex flex-col flex-1 h-full w-full overflow-hidden">
         {/* Upper Header Bar */}
         <header className="flex h-14 items-center justify-between border-b border-brand-primary/10 px-4 bg-brand-bg/90 backdrop-blur-md sticky top-0 z-40">
           <h2 className="text-2xl font-extrabold tracking-tight text-brand-primary cursor-pointer select-none" style={{ fontFamily: 'sans-serif' }}>
@@ -196,34 +196,6 @@ export default function Home() {
             </div>
           </div>
         </main>
-
-        {/* Bottom GNB Navigation Bar */}
-        <nav className="h-16 border-t border-brand-primary/10 bg-brand-bg/95 backdrop-blur-md flex items-center justify-around px-2 z-40">
-          {[
-            { id: 'home', label: '홈', icon: HomeIcon },
-            { id: 'map', label: '지도', icon: MapPin },
-            { id: 'write', label: '글쓰기', icon: PlusSquare },
-            { id: 'community', label: '커뮤니티', icon: MessageSquare },
-            { id: 'mypage', label: '마이페이지', icon: User }
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id as any)}
-                className={`flex flex-col items-center justify-center w-14 h-12 rounded-xl transition-all duration-150 cursor-pointer ${
-                  isActive ? 'text-brand-primary scale-105' : 'text-brand-primary/45 hover:text-brand-primary/75'
-                }`}
-              >
-                <Icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'}`} />
-                <span className="text-[10px] font-bold mt-1 tracking-tight">
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
       </div>
 
       {/* Global CSS animations inside style tag */}
