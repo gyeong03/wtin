@@ -29,8 +29,27 @@ export default function GNB({ isLoggedIn = false }: GNBProps) {
     }
   };
 
+  const [splashDismissed, setSplashDismissed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSplashDismissed(!!sessionStorage.getItem('splash_dismissed'));
+      
+      const handleStorage = () => {
+        setSplashDismissed(!!sessionStorage.getItem('splash_dismissed'));
+      };
+      window.addEventListener('storage', handleStorage);
+      return () => window.removeEventListener('storage', handleStorage);
+    }
+  }, []);
+
   // Hide GNB in auth page for a clean fullscreen login experience
   if (pathname === '/auth') return null;
+
+  // Prevent GNB showing on splash loading screen
+  if (!splashDismissed && pathname === '/') {
+    return null;
+  }
 
   return (
     <nav className="h-16 border-t border-brand-primary/10 bg-brand-bg/95 backdrop-blur-md flex items-center justify-around px-2 z-40">

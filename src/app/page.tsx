@@ -10,8 +10,18 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState('인기순');
 
   useEffect(() => {
+    // If already dismissed in this session, don't show splash again
+    if (typeof window !== 'undefined' && sessionStorage.getItem('splash_dismissed')) {
+      setShowSplash(false);
+      return;
+    }
     const timer = setTimeout(() => {
       setShowSplash(false);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('splash_dismissed', 'true');
+        // Force state update event for client rerender of layout
+        window.dispatchEvent(new Event('storage'));
+      }
     }, 1800);
     return () => clearTimeout(timer);
   }, []);
@@ -54,25 +64,8 @@ export default function Home() {
 
         {/* Scrollable Screen Content */}
         <main className="flex-1 overflow-y-auto pb-4 scrollbar-none">
-          {/* 1. Category Filter Chips (Horizontal Swiper) */}
-          <div className="flex items-center gap-2 overflow-x-auto px-4 py-3 scrollbar-none">
-            {['인기순', '스토어', '제품', '코디', '자유'].map((filter) => {
-              const isSelected = activeFilter === filter;
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`px-4.5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 ${
-                    isSelected
-                      ? 'bg-brand-primary text-brand-bg shadow-sm'
-                      : 'bg-brand-primary/5 text-brand-primary hover:bg-brand-primary/10'
-                  }`}
-                >
-                  {filter}
-                </button>
-              );
-            })}
-          </div>
+          {/* Spacing correction */}
+          <div className="pt-4" />
 
           {/* 2. Map Widget Area */}
           <div className="px-4 mb-6">
