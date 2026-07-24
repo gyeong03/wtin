@@ -7,21 +7,20 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function MyPage() {
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, profileNickname, profileRegion, saveProfile } = useAuth();
   const router = useRouter();
   const [profileState, setProfileState] = useState<'welcome' | 'create' | 'view'>('welcome');
   
-  // Profile Form States
-  const [nickname, setNickname] = useState('');
-  const [region, setRegion] = useState('부산진구');
+  // Local Profile Form States
+  const [nicknameInput, setNicknameInput] = useState('');
+  const [regionInput, setRegionInput] = useState('부산진구');
   const [profileImage, setProfileImage] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
   const [activeFilter, setActiveFilter] = useState('전체');
 
-  // Sync profile display state with actual auth state
+  // Sync profile display state with actual global auth and profile details
   useEffect(() => {
     if (isLoggedIn) {
-      // If user logs in, show either create profile screen or view screen (fallback default: welcome/create)
-      if (nickname) {
+      if (profileNickname) {
         setProfileState('view');
       } else {
         setProfileState('create');
@@ -29,23 +28,25 @@ export default function MyPage() {
     } else {
       setProfileState('welcome');
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, profileNickname]);
 
   const handleCreateProfile = () => {
-    if (!nickname.trim()) {
+    if (!nicknameInput.trim()) {
       alert('닉네임을 입력해 주세요!');
       return;
     }
-    if (nickname.length > 8) {
+    if (nicknameInput.length > 8) {
       alert('닉네임은 8글자 이내여야 합니다.');
       return;
     }
+    // Persist details to global AuthContext (which saves in localStorage)
+    saveProfile(nicknameInput, regionInput);
     setProfileState('view');
   };
 
   const handleResetProfile = () => {
     logout();
-    setNickname('');
+    setNicknameInput('');
     setProfileState('welcome');
     router.push('/');
   };
@@ -99,8 +100,8 @@ export default function MyPage() {
                 <label className="block text-xs font-extrabold mb-1.5 opacity-80">닉네임 (8글자 이내)</label>
                 <input 
                   type="text" 
-                  value={nickname} 
-                  onChange={(e) => setNickname(e.target.value.slice(0, 8))}
+                  value={nicknameInput} 
+                  onChange={(e) => setNicknameInput(e.target.value.slice(0, 8))}
                   placeholder="예: 빈티지러버" 
                   className="w-full h-11 px-4 rounded-xl border border-brand-primary/15 bg-white/50 text-sm font-bold focus:outline-none focus:border-brand-primary transition-all"
                 />
@@ -110,8 +111,8 @@ export default function MyPage() {
               <div>
                 <label className="block text-xs font-extrabold mb-1.5 opacity-80">지역 선택 (부산 도시선택)</label>
                 <select 
-                  value={region} 
-                  onChange={(e) => setRegion(e.target.value)}
+                  value={regionInput} 
+                  onChange={(e) => setRegionInput(e.target.value)}
                   className="w-full h-11 px-3 rounded-xl border border-brand-primary/15 bg-white/50 text-sm font-bold focus:outline-none focus:border-brand-primary transition-all"
                 >
                   {['부산진구', '수영구', '해운대구', '중구', '금정구', '동래구'].map((city) => (
@@ -151,11 +152,11 @@ export default function MyPage() {
             <img src={profileImage} alt="User Profile" className="w-16 h-16 rounded-full object-cover border border-brand-primary/10" />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base">{nickname}</span>
+                <span className="font-extrabold text-base">{profileNickname}</span>
                 <span className="px-2 py-0.5 rounded bg-brand-primary/10 text-[9px] font-bold text-brand-primary">Lv.3 빈티지 콜렉터</span>
               </div>
               <p className="text-xs text-brand-primary/65 font-medium mt-1 flex items-center gap-0.5">
-                <MapPin className="w-3.5 h-3.5" /> {region}
+                <MapPin className="w-3.5 h-3.5" /> {profileRegion}
               </p>
             </div>
           </div>
