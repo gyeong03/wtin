@@ -26,26 +26,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sync with localStorage so the state persists on reload
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('isLoggedIn');
-      if (stored === 'true') {
-        setIsLoggedIn(true);
-        const storedNick = localStorage.getItem('profileNickname');
-        if (storedNick) {
-          setProfileNickname(storedNick);
-        }
-        const storedRegion = localStorage.getItem('profileRegion');
-        if (storedRegion) {
-          setProfileRegion(storedRegion);
-        }
-      } else {
-        // If not logged in, clear storage and state values completely to prevent leaks
-        setIsLoggedIn(false);
-        setProfileNickname('');
-        setProfileRegion('부산진구');
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('profileNickname');
-        localStorage.removeItem('profileRegion');
-      }
+      // FORCE default unauthenticated state for test environment on fresh loading
+      setIsLoggedIn(false);
+      setProfileNickname('');
+      setProfileRegion('부산진구');
+      localStorage.clear();
       setIsInitialized(true);
     }
   }, []);
