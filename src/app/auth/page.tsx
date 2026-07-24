@@ -3,12 +3,13 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AuthPage() {
   const router = useRouter();
+  const { login, redirectUrl } = useAuth();
 
   const handleBack = () => {
-    // Force history back navigation to return to the exact page the user was looking at
     if (typeof window !== 'undefined') {
       window.history.back();
     }
@@ -16,8 +17,14 @@ export default function AuthPage() {
 
   const handleMockLogin = () => {
     alert('MVP 데모용 로그인 알림: 로그인이 완료되었습니다!');
-    // Redirect to home after login for MVP experience
-    router.push('/');
+    login();
+    
+    // Redirect to stored original target URL or default fallback (home)
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      router.push('/');
+    }
   };
 
   return (

@@ -4,14 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Home as HomeIcon, MapPin, PlusSquare, MessageSquare, User } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
-interface GNBProps {
-  isLoggedIn?: boolean;
-}
-
-export default function GNB({ isLoggedIn = false }: GNBProps) {
+export default function GNB() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isLoggedIn, setRedirectUrl } = useAuth();
 
   const navItems = [
     { id: 'home', label: '홈', icon: HomeIcon, path: '/' },
@@ -24,6 +22,8 @@ export default function GNB({ isLoggedIn = false }: GNBProps) {
   const handleNavClick = (e: React.MouseEvent, item: typeof navItems[0]) => {
     if (item.requireAuth && !isLoggedIn) {
       e.preventDefault();
+      // Store current path so the user can be redirected back after login
+      setRedirectUrl(item.path);
       alert('로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다.');
       router.push('/auth');
     }

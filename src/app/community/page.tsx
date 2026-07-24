@@ -1,24 +1,45 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Bell, Heart, MessageCircle, PenSquare, Eye } from 'lucide-react';
+import { Search, Bell, Heart, MessageCircle, PenSquare, Eye, ArrowUpDown } from 'lucide-react';
 import { DUMMY_POSTS } from '@/lib/dummy';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CommunityPage() {
   const [activeFilter, setActiveFilter] = useState('전체');
-  const [sortBy, setSortBy] = useState<'popular' | 'latest'>('popular'); // REQ-01 인기순 / 최신순 정렬
+  const [sortType, setSortType] = useState<'recommend' | 'popular'>('recommend'); // 추천순 <-> 인기순 토글
   const router = useRouter();
+  const { isLoggedIn, setRedirectUrl } = useAuth();
 
   // Handle post clicks, redirect if unauthenticated (Simulated soft-wall: REQ-07)
   const handlePostClick = (postId: string) => {
-    alert('로그인이 필요한 상세 게시글 페이지입니다. 로그인 페이지로 안내합니다.');
-    router.push('/auth');
+    if (!isLoggedIn) {
+      setRedirectUrl(`/community`);
+      alert('로그인이 필요한 상세 게시글 페이지입니다. 로그인 페이지로 안내합니다.');
+      router.push('/auth');
+    } else {
+      alert('MVP 데모: 상세 게시글 읽기 기능이 활성화되었습니다.');
+    }
   };
 
   const handleWriteClick = () => {
-    alert('글쓰기는 로그인이 필요합니다. 로그인 페이지로 안내합니다.');
-    router.push('/auth');
+    if (!isLoggedIn) {
+      setRedirectUrl(`/write`);
+      alert('글쓰기는 로그인이 필요합니다. 로그인 페이지로 안내합니다.');
+      router.push('/auth');
+    } else {
+      router.push('/write');
+    }
+  };
+
+  // Toggle dynamic sort order
+  const toggleSortType = () => {
+    setSortByToggle();
+  };
+
+  const setSortByToggle = () => {
+    setSortType(prev => prev === 'recommend' ? 'popular' : 'recommend');
   };
 
   return (
@@ -39,19 +60,28 @@ export default function CommunityPage() {
         </div>
       </header>
 
-      {/* REQ-01 정렬 및 REQ-02 카테고리 필터 영역 */}
-      <div className="border-b border-brand-primary/5 bg-brand-bg flex-shrink-0">
+      {/* REQ-01 당근 스타일 단일 추천순/인기순 토글 버튼 및 REQ-02 카테고리 필터 영역 */}
+      <div className="border-b border-brand-primary/5 bg-brand-bg flex-shrink-0 flex items-center justify-between px-4 py-2 gap-2">
+        {/* Toggle Sort Button (Always active color, toggles recommend <-> popular) */}
+        <button 
+          onClick={toggleSortType}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-primary text-brand-bg text-xs font-black shadow-sm active:scale-95 transition-transform whitespace-nowrap cursor-pointer"
+        >
+          <ArrowUpDown className="h-3 w-3 stroke-[2.8px]" />
+          {sortType === 'recommend' ? '추천순' : '인기순'}
+        </button>
+
         {/* Category Filter Chips (Horizontal Swiper) */}
-        <div className="flex items-center gap-2 overflow-x-auto px-4 pt-3 pb-2 scrollbar-none">
+        <div className="flex-1 flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
           {['전체', '스토어', '제품', '코디', '자유'].map((filter) => {
             const isSelected = activeFilter === filter;
             return (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-4.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 ${
                   isSelected
-                    ? 'bg-brand-primary text-brand-bg shadow-sm'
+                    ? 'bg-brand-primary/15 text-brand-primary'
                     : 'bg-brand-primary/5 text-brand-primary hover:bg-brand-primary/10'
                 }`}
               >
@@ -59,22 +89,6 @@ export default function CommunityPage() {
               </button>
             );
           })}
-        </div>
-
-        {/* REQ-01 인기순 / 최신순 탭 */}
-        <div className="flex items-center gap-4 px-4 pb-2 text-xs font-bold text-brand-primary/50">
-          <button 
-            onClick={() => setSortBy('popular')}
-            className={`transition-colors py-1 ${sortBy === 'popular' ? 'text-brand-primary border-b-2 border-brand-primary' : 'hover:text-brand-primary/80'}`}
-          >
-            인기순 (조회수 기준)
-          </button>
-          <button 
-            onClick={() => setSortBy('latest')}
-            className={`transition-colors py-1 ${sortBy === 'latest' ? 'text-brand-primary border-b-2 border-brand-primary' : 'hover:text-brand-primary/80'}`}
-          >
-            최신순
-          </button>
         </div>
       </div>
 
@@ -126,7 +140,7 @@ export default function CommunityPage() {
               <div className="flex items-center gap-3.5 mt-2.5 text-brand-primary/60">
                 <span className="flex items-center gap-1 text-[9px] font-bold">
                   <Eye className="h-3 w-3 stroke-[2px]" />
-                  {post.likes * 5} {/* Simulated view counts */}
+                  {sortType === 'recommend' ? post.likes * 6 : post.likes * 12}
                 </span>
                 <span className="flex items-center gap-1 text-[9px] font-bold">
                   <MessageCircle className="h-3 w-3 stroke-[2px]" />

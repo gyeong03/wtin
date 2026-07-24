@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, MapPin, Camera, Settings, BookOpen, MessageCircle, Heart, History, LogOut } from 'lucide-react';
 import { DUMMY_POSTS } from '@/lib/dummy';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function MyPage() {
+  const { isLoggedIn, logout } = useAuth();
+  const router = useRouter();
   const [profileState, setProfileState] = useState<'welcome' | 'create' | 'view'>('welcome');
   
   // Profile Form States
@@ -12,6 +16,20 @@ export default function MyPage() {
   const [region, setRegion] = useState('부산진구');
   const [profileImage, setProfileImage] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop');
   const [activeFilter, setActiveFilter] = useState('전체');
+
+  // Sync profile display state with actual auth state
+  useEffect(() => {
+    if (isLoggedIn) {
+      // If user logs in, show either create profile screen or view screen (fallback default: welcome/create)
+      if (nickname) {
+        setProfileState('view');
+      } else {
+        setProfileState('create');
+      }
+    } else {
+      setProfileState('welcome');
+    }
+  }, [isLoggedIn]);
 
   const handleCreateProfile = () => {
     if (!nickname.trim()) {
@@ -26,8 +44,10 @@ export default function MyPage() {
   };
 
   const handleResetProfile = () => {
+    logout();
     setNickname('');
     setProfileState('welcome');
+    router.push('/');
   };
 
   return (
@@ -42,7 +62,10 @@ export default function MyPage() {
             Wt&apos;in
           </h3>
           <button 
-            onClick={() => setProfileState('create')}
+            onClick={() => {
+              alert('로그인 후 이용할 수 있는 영역입니다. 로그인 페이지로 안내합니다.');
+              router.push('/auth');
+            }}
             className="px-8 py-3.5 bg-brand-primary text-brand-bg font-extrabold text-sm rounded-full shadow-lg active:scale-95 transition-all cursor-pointer"
           >
             프로필 만들기
@@ -153,7 +176,7 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* REQ-05. 카테고리별 내가 쓴 글 보기 리스트 */}
+          {/* REQ-05. 내가 쓴 글 보기 리스트 */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="px-4 py-3 border-b border-brand-primary/5 flex-shrink-0">
               <h4 className="font-extrabold text-xs text-brand-primary/75 tracking-wider uppercase mb-2">내가 쓴 글</h4>
