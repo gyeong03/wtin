@@ -8,7 +8,12 @@ export default function AuthPage() {
   const router = useRouter();
 
   const handleBack = () => {
-    router.back();
+    // If there's no history to go back to (e.g. direct link), redirect to home
+    if (window.history.length <= 1) {
+      router.push('/');
+    } else {
+      router.back();
+    }
   };
 
   const handleMockLogin = () => {
