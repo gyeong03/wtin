@@ -75,9 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfileNickname('');
     setProfileRegion('부산진구');
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('profileNickname');
-      localStorage.removeItem('profileRegion');
+      localStorage.clear();
+      sessionStorage.removeItem('splash_dismissed'); // keeps splash state clean
     }
     setRedirectUrl(null);
   };
