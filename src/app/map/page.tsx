@@ -191,7 +191,7 @@ export default function MapPage() {
       </button>
 
       {/* Real Kakao Map Area */}
-      <div ref={mapContainerRef} className="absolute inset-0 z-10 w-full h-full bg-[#DEE5D4]" />
+      <div ref={mapContainerRef} className="absolute inset-0 w-full h-full bg-[#DEE5D4]" style={{ width: '100%', height: '100%' }} />
 
       {/* Bottom Sheet Card Panel */}
       {selectedShop && (
