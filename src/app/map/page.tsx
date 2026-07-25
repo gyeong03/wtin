@@ -67,20 +67,33 @@ export default function MapPage() {
 
   // Load and initialize Kakao Map
   useEffect(() => {
-    const kakao = window.kakao;
-    if (kakao && kakao.maps) {
-      kakao.maps.load(() => {
-        if (!mapContainerRef.current) return;
+    const initMap = () => {
+      const kakao = window.kakao;
+      if (kakao && kakao.maps) {
+        kakao.maps.load(() => {
+          if (!mapContainerRef.current) return;
+          const options = {
+            center: new kakao.maps.LatLng(35.1558, 129.0660),
+            level: 7
+          };
+          const mapInstance = new kakao.maps.Map(mapContainerRef.current, options);
+          mapRef.current = mapInstance;
+          setMapLoaded(true);
+        });
+      }
+    };
 
-        const options = {
-          center: new kakao.maps.LatLng(35.1558, 129.0660), // Jeonpo-dong center of Busan
-          level: 7 // initial zoom level
-        };
-
-        const mapInstance = new kakao.maps.Map(mapContainerRef.current, options);
-        mapRef.current = mapInstance;
-        setMapLoaded(true);
-      });
+    if (window.kakao && window.kakao.maps) {
+      initMap();
+    } else {
+      // Dynamic fallback checking for SDK load completion
+      const interval = setInterval(() => {
+        if (window.kakao && window.kakao.maps) {
+          initMap();
+          clearInterval(interval);
+        }
+      }, 100);
+      return () => clearInterval(interval);
     }
   }, []);
 

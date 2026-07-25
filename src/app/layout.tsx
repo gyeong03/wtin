@@ -26,8 +26,8 @@ export default function RootLayout({
       <head>
         {/* Kakao Map API SDK Script */}
         <Script
-          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=d9218ff20e89cd6d2f3cc2c51e2474fa&autoload=false`}
-          strategy="beforeInteractive"
+          src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d9218ff20e89cd6d2f3cc2c51e2474fa&autoload=false"
+          strategy="afterInteractive"
         />
       </head>
       <body className="h-full bg-brand-bg text-brand-primary flex justify-center overflow-hidden">
