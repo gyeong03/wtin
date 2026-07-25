@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Star, Bookmark, X } from 'lucide-react';
+import { Search, MapPin, Star, Bookmark, X, Navigation } from 'lucide-react';
 import { DUMMY_SHOPS } from '@/lib/dummy';
 
 declare global {
@@ -65,6 +65,8 @@ export default function MapPage() {
     });
   }, [bookmarkedShops, mapLoaded]);
 
+  const userMarkerRef = useRef<any>(null);
+
   // Load and initialize Kakao Map
   useEffect(() => {
     const initMap = () => {
@@ -79,6 +81,35 @@ export default function MapPage() {
           const mapInstance = new kakao.maps.Map(mapContainerRef.current, options);
           mapRef.current = mapInstance;
           setMapLoaded(true);
+
+          // Try loading user's current GPS location immediately upon map load
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const userLoc = new kakao.maps.LatLng(lat, lng);
+                
+                // Set center to current location
+                mapInstance.setCenter(userLoc);
+
+                // Add current location blue dot marker
+                const userMarkerImage = new kakao.maps.MarkerImage(
+                  'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png', // red dot representing self
+                  new kakao.maps.Size(28, 28)
+                );
+                const userMarker = new kakao.maps.Marker({
+                  position: userLoc,
+                  image: userMarkerImage,
+                  map: mapInstance
+                });
+                userMarkerRef.current = userMarker;
+              },
+              () => {
+                console.log('GPS Geolocation blocked or failed. Centering fallback on Jeonpo.');
+              }
+            );
+          }
         });
       }
     };
@@ -97,6 +128,45 @@ export default function MapPage() {
     }
   }, []);
 
+  const handleGetCurrentLocation = () => {
+    if (!mapLoaded || !mapRef.current) return;
+    const kakao = window.kakao;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const userLoc = new kakao.maps.LatLng(lat, lng);
+          
+          mapRef.current.setCenter(userLoc);
+          mapRef.current.setLevel(5); // zoom in closer for current loc
+
+          // Redraw or update current position marker
+          if (userMarkerRef.current) {
+            userMarkerRef.current.setMap(null);
+          }
+
+          const userMarkerImage = new kakao.maps.MarkerImage(
+            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+            new kakao.maps.Size(28, 28)
+          );
+          const userMarker = new kakao.maps.Marker({
+            position: userLoc,
+            image: userMarkerImage,
+            map: mapRef.current
+          });
+          userMarkerRef.current = userMarker;
+        },
+        () => {
+          alert('GPS 권한 차단 또는 오류로 현재 위치를 불러올 수 없습니다.');
+        }
+      );
+    } else {
+      alert('이 브라우저는 현재 위치를 지원하지 않습니다.');
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full w-full overflow-hidden bg-brand-bg text-brand-primary relative">
       {/* Search overlay inside map */}
@@ -110,6 +180,15 @@ export default function MapPage() {
           />
         </div>
       </div>
+
+      {/* Floating GPS Location Button */}
+      <button 
+        onClick={handleGetCurrentLocation}
+        className="absolute right-4 top-20 z-20 p-3 rounded-full bg-white/90 backdrop-blur-md border border-brand-primary/10 shadow-lg active:scale-95 transition-all text-brand-primary hover:bg-brand-primary/5 cursor-pointer"
+        title="현위치로 이동"
+      >
+        <Navigation className="w-5 h-5 fill-current" />
+      </button>
 
       {/* Real Kakao Map Area */}
       <div ref={mapContainerRef} className="absolute inset-0 z-10 w-full h-full bg-[#DEE5D4]" />

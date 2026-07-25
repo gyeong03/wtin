@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Search, Bell, Home as HomeIcon, MapPin, PlusSquare, MessageSquare, User, Star, Heart, MessageCircle } from 'lucide-react';
 import { DUMMY_SHOPS, DUMMY_POSTS } from '@/lib/dummy';
 
@@ -69,7 +70,7 @@ export default function Home() {
 
           {/* 2. Map Widget Area */}
           <div className="px-4 mb-6">
-            <div className="relative rounded-3xl overflow-hidden aspect-[16/9] border border-brand-primary/10 shadow-sm bg-brand-primary/5 group cursor-pointer">
+            <Link href="/map" className="block relative rounded-3xl overflow-hidden aspect-[16/9] border border-brand-primary/10 shadow-sm bg-brand-primary/5 group cursor-pointer">
               {/* Map background placeholder styling */}
               <div 
                 className="absolute inset-0 bg-cover bg-center filter grayscale-[30%] opacity-90 transition-transform duration-700 group-hover:scale-105"
@@ -84,16 +85,16 @@ export default function Home() {
                   <h4 className="text-white font-extrabold text-lg drop-shadow-sm">지도에서 가게 찾기</h4>
                   <p className="text-white/80 text-xs mt-0.5 font-medium drop-shadow-sm">내 근처 샵 정보와 위치 바로 확인</p>
                 </div>
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary text-brand-bg font-extrabold text-xs rounded-full shadow-md hover:scale-105 active:scale-95 transition-all">
+                <div className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary text-brand-bg font-extrabold text-xs rounded-full shadow-md hover:scale-105 active:scale-95 transition-all">
                   <MapPin className="h-3.5 w-3.5" />
                   지도 보기
-                </button>
+                </div>
               </div>
 
               {/* Pins floating on map placeholder for design feeling */}
               <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-brand-primary border-2 border-brand-bg rounded-full animate-bounce shadow-md" />
               <div className="absolute top-1/2 right-1/4 w-3 h-3 bg-brand-primary border-2 border-brand-bg rounded-full animate-pulse shadow-md" />
-            </div>
+            </Link>
           </div>
 
           {/* 3. Today's Pick (Horizontal Swiper) */}
