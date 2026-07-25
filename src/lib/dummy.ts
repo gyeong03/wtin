@@ -5,6 +5,8 @@ export interface VintageShop {
   imageUrl: string;
   rating: number;
   tags: string[];
+  lat?: number;
+  lng?: number;
 }
 
 export interface CommunityPost {
@@ -26,7 +28,9 @@ export const DUMMY_SHOPS: VintageShop[] = [
     location: '부산진구 전포동',
     imageUrl: 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?q=80&w=300&auto=format&fit=crop',
     rating: 4.8,
-    tags: ['빈티지 의류', '남녀 공용', '벨트/악세사리']
+    tags: ['빈티지 의류', '남녀 공용', '벨트/악세사리'],
+    lat: 35.1558,
+    lng: 129.0660
   },
   {
     id: 'shop-2',
@@ -34,7 +38,9 @@ export const DUMMY_SHOPS: VintageShop[] = [
     location: '수영구 광안동',
     imageUrl: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=300&auto=format&fit=crop',
     rating: 4.6,
-    tags: ['아메카지', '워크웨어', '밀리터리']
+    tags: ['아메카지', '워크웨어', '밀리터리'],
+    lat: 35.1532,
+    lng: 129.1189
   },
   {
     id: 'shop-3',
@@ -42,7 +48,9 @@ export const DUMMY_SHOPS: VintageShop[] = [
     location: '부산진구 부전동',
     imageUrl: 'https://images.unsplash.com/photo-1479064555552-3ef4979f8908?q=80&w=300&auto=format&fit=crop',
     rating: 4.7,
-    tags: ['브랜드 구제', '명품 빈티지']
+    tags: ['브랜드 구제', '명품 빈티지'],
+    lat: 35.1578,
+    lng: 129.0592
   },
   {
     id: 'shop-4',
@@ -50,7 +58,9 @@ export const DUMMY_SHOPS: VintageShop[] = [
     location: '중구 남포동',
     imageUrl: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=300&auto=format&fit=crop',
     rating: 4.9,
-    tags: ['폴로', '타미', '대형 매장']
+    tags: ['폴로', '타미', '대형 매장'],
+    lat: 35.0975,
+    lng: 129.0305
   }
 ];
 

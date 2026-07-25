@@ -1,25 +1,88 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, MapPin, Star, Bookmark, X, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, MapPin, Star, Bookmark, X } from 'lucide-react';
 import { DUMMY_SHOPS } from '@/lib/dummy';
+
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
 
 export default function MapPage() {
   const [selectedShop, setSelectedShop] = useState<typeof DUMMY_SHOPS[0] | null>(DUMMY_SHOPS[0]);
-  const [bookmarkedShops, setBookmarkedShops] = useState<string[]>(['shop-1']); // Bookmarked state
+  const [bookmarkedShops, setBookmarkedShops] = useState<string[]>(['shop-1']);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
 
   const toggleBookmark = (shopId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (bookmarkedShops.includes(shopId)) {
-      setBookmarkedShops(bookmarkedShops.filter(id => id !== shopId));
-    } else {
-      setBookmarkedShops([...bookmarkedShops, shopId]);
-    }
+    const updated = bookmarkedShops.includes(shopId)
+      ? bookmarkedShops.filter(id => id !== shopId)
+      : [...bookmarkedShops, shopId];
+    setBookmarkedShops(updated);
   };
 
-  const handleMarkerClick = (shop: typeof DUMMY_SHOPS[0]) => {
-    setSelectedShop(shop);
-  };
+  // Re-draw markers when bookmark status changes to update color visual
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return;
+    
+    // Clear old markers
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    const kakao = window.kakao;
+
+    DUMMY_SHOPS.forEach((shop) => {
+      const isBookmarked = bookmarkedShops.includes(shop.id);
+      
+      // Marker image configuration (Orange pin for bookmark, Brand Blue pin for default)
+      const markerImageUrl = isBookmarked
+        ? 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png' // orange/star marker
+        : 'https://t1.daumcdn.net/mapjsapi/images/2x/marker.png'; // default blue marker
+      
+      const imageSize = new kakao.maps.Size(24, 35);
+      const markerImage = new kakao.maps.MarkerImage(markerImageUrl, imageSize);
+
+      const markerPosition = new kakao.maps.LatLng(shop.lat || 35.1558, shop.lng || 129.0660);
+
+      const marker = new kakao.maps.Marker({
+        position: markerPosition,
+        image: markerImage,
+        title: shop.name
+      });
+
+      marker.setMap(mapRef.current);
+      markersRef.current.push(marker);
+
+      // Bind click handler to marker
+      kakao.maps.event.addListener(marker, 'click', () => {
+        setSelectedShop(shop);
+      });
+    });
+  }, [bookmarkedShops, mapLoaded]);
+
+  // Load and initialize Kakao Map
+  useEffect(() => {
+    const kakao = window.kakao;
+    if (kakao && kakao.maps) {
+      kakao.maps.load(() => {
+        if (!mapContainerRef.current) return;
+
+        const options = {
+          center: new kakao.maps.LatLng(35.1558, 129.0660), // Jeonpo-dong center of Busan
+          level: 7 // initial zoom level
+        };
+
+        const mapInstance = new kakao.maps.Map(mapContainerRef.current, options);
+        mapRef.current = mapInstance;
+        setMapLoaded(true);
+      });
+    }
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col h-full w-full overflow-hidden bg-brand-bg text-brand-primary relative">
@@ -35,44 +98,10 @@ export default function MapPage() {
         </div>
       </div>
 
-      {/* Map Area (Kakao Map Placeholder with pins) */}
-      <div className="absolute inset-0 z-10 bg-[#DEE5D4] overflow-hidden">
-        {/* Abstract vector grid for design feeling */}
-        <div 
-          className="w-full h-full bg-cover bg-center opacity-85 filter contrast-125"
-          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=600&auto=format&fit=crop')` }}
-        />
-        
-        {/* Soft overlay filter for road feels */}
-        <div className="absolute inset-0 bg-brand-primary/10 pointer-events-none" />
+      {/* Real Kakao Map Area */}
+      <div ref={mapContainerRef} className="absolute inset-0 z-10 w-full h-full bg-[#DEE5D4]" />
 
-        {/* Map markers (REQ-02: Bookmark highlights pin color to orange) */}
-        {DUMMY_SHOPS.map((shop, i) => {
-          const isBookmarked = bookmarkedShops.includes(shop.id);
-          const pinColor = isBookmarked ? 'bg-orange-500 text-white' : 'bg-brand-primary text-brand-bg';
-          
-          // Coordinate distribution on preview map
-          const positions = [
-            { top: '35%', left: '30%' },
-            { top: '55%', left: '65%' },
-            { top: '42%', left: '75%' },
-            { top: '24%', left: '55%' }
-          ];
-          const pos = positions[i % positions.length];
-
-          return (
-            <button
-              key={shop.id}
-              onClick={() => handleMarkerClick(shop)}
-              className={`absolute ${pos.top} ${pos.left} -translate-x-1/2 -translate-y-1/2 p-2 rounded-full shadow-lg z-20 hover:scale-110 active:scale-95 transition-all cursor-pointer ${pinColor}`}
-            >
-              <MapPin className="w-5 h-5 fill-current stroke-current" />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Bottom Sheet Card Panel (REQ-01 / REQ-02 / REQ-04) */}
+      {/* Bottom Sheet Card Panel */}
       {selectedShop && (
         <div className="absolute bottom-20 inset-x-4 z-30 bg-white/95 backdrop-blur-md border border-brand-primary/10 rounded-3xl p-5 shadow-2xl animate-fade-in-up flex flex-col gap-4">
           
@@ -85,7 +114,7 @@ export default function MapPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {/* REQ-02: Bookmark toggle */}
+              {/* Bookmark toggle */}
               <button 
                 onClick={(e) => toggleBookmark(selectedShop.id, e)}
                 className={`p-2 rounded-full border transition-all ${
@@ -97,7 +126,7 @@ export default function MapPage() {
               >
                 <Bookmark className="w-4.5 h-4.5 fill-current" />
               </button>
-              {/* REQ-04: Close panel (back to map view) */}
+              {/* Close panel */}
               <button 
                 onClick={() => setSelectedShop(null)}
                 className="p-2 rounded-full border border-brand-primary/15 hover:bg-brand-primary/5 transition-all"
@@ -108,7 +137,7 @@ export default function MapPage() {
             </div>
           </div>
 
-          {/* REQ-01: Shop sign images swiper row */}
+          {/* Shop sign images swiper row */}
           <div className="flex gap-2 overflow-x-auto scrollbar-none py-1">
             <img src={selectedShop.imageUrl} alt="가게간판 1" className="w-24 h-24 rounded-2xl object-cover border border-brand-primary/5 flex-shrink-0" />
             <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=200&auto=format&fit=crop" alt="가게매장 2" className="w-24 h-24 rounded-2xl object-cover border border-brand-primary/5 flex-shrink-0" />
@@ -130,7 +159,7 @@ export default function MapPage() {
               <span>{selectedShop.rating} (리뷰 32개)</span>
             </div>
             <div className="flex justify-end mt-1.5">
-              {/* REQ-03: Write Review mock button */}
+              {/* Write Review mock button */}
               <button 
                 onClick={() => alert('리뷰 남기기 페이지로 이동합니다 (준비 중)')}
                 className="px-3.5 py-1.5 rounded-full bg-brand-primary/5 text-brand-primary text-[10px] font-extrabold hover:bg-brand-primary/10 active:scale-95 transition-all"
